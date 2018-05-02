@@ -3,11 +3,18 @@ using Xunit;
 using MainLibrary;
 using MainLibrary.Core;
 using System.Collections.Generic;
+using NFluent;
 
 namespace MainTests
 {
     public class RunnerTests
     {
+        [Fact]
+        public void TestCheckType()
+        {
+            Check.That(new SumOperation()).InheritsFrom<ICalculator>();
+        }
+
         [Fact]
         public void TestSumTotal()
         {
@@ -19,7 +26,9 @@ namespace MainTests
 
             var runner = new Runner(new SumOperation());
 
-            Assert.Equal(13.5M, runner.Total(numbers));
+            var total = runner.Total(numbers);
+            Assert.Equal(13.5M, total);
+            Check.That(total).IsStrictlyGreaterThan(0);
         }
     }
 }
