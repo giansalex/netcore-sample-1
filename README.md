@@ -9,3 +9,4 @@
 - [shouldly](https://github.com/shouldly/shouldly)
 - [FakeItEasy](https://github.com/FakeItEasy/FakeItEasy)
 - [AutoFixture](https://github.com/AutoFixture/AutoFixture)
+- [Valit](https://github.com/valit-stack/Valit)

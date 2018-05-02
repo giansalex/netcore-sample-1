@@ -9,6 +9,8 @@ using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Lifestyle;
 using StackExchange.Profiling;
 using Serilog;
+using Valit;
+using MainLibrary.Model;
 
 namespace ConsoleApp
 {
@@ -25,20 +27,38 @@ namespace ConsoleApp
 
             var profiler = MiniProfiler.StartNew(nameof(ConsoleApp));
 
-            using (profiler.Step(nameof(Main)))
             using (var container = GetContainer())
             {
                 using (container.BeginScope())
                 {
-                    var logger = container.Resolve<ILogger>();
-                    var runner = container.Resolve<Runner>();
-                    logger.Information("Run operations");
-                    var result = runner.Total(numbers);
+                    using (profiler.Step("Calculate"))
+                    {
+                        var logger = container.Resolve<ILogger>();
+                        var runner = container.Resolve<Runner>();
+                        logger.Information("Run operations");
+                        var result = runner.Total(numbers);
 
-                    logger.Information("Result: {result:0.00}", result);
-                    Console.WriteLine($"Result: {result:0.00}");
+                        logger.Information("Result: {result:0.00}", result);
+                        Console.WriteLine($"Result: {result:0.00}");
+                    }
+
+                    using (profiler.Step("Validate"))
+                    {
+                        var obj = new UserModel{
+                            Email = "admin@domain.com",
+                            Password = "12345677890",
+                            Age = 24
+                        };
+
+                        var result = container.Resolve<IValitRules<UserModel>>()
+                                        .For(obj)
+                                        .Validate();
+
+                        Console.WriteLine($"Is Valid: {result.Succeeded}");
+                    }
                 }
             }
+
 
             profiler.Stop();
             Console.WriteLine(MiniProfiler.Current.RenderPlainText());
@@ -55,6 +75,9 @@ namespace ConsoleApp
             container.Register(Component.For<ILogger>()
                      .UsingFactoryMethod(GetLogger)
                      .LifestyleScoped());
+            container.Register(Component.For<IValitRules<UserModel>>()
+                     .UsingFactoryMethod(Validator.GetUserValidator)
+                     .LifestyleSingleton());
 
             return container;
         }
