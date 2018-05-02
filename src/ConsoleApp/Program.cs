@@ -1,7 +1,12 @@
-﻿using System;
+﻿using Castle.Windsor;
+using System;
 using System.Collections.Generic;
 using MainLibrary;
 using MainLibrary.Core;
+using Castle.Windsor.Installer;
+using System.Reflection;
+using Castle.MicroKernel.Registration;
+using Castle.MicroKernel.Lifestyle;
 
 namespace ConsoleApp
 {
@@ -16,11 +21,29 @@ namespace ConsoleApp
                 new Tuple<decimal, decimal>(6.4M, 3),
             };
 
-            var runner = new Runner(new SumOperation());
-            var result = runner.Total(numbers);
+            using (var container = GetContainer())
+            {
+                using (container.BeginScope())
+                {
+                    var runner = container.Resolve<Runner>();
+                    var result = runner.Total(numbers);
 
-            Console.WriteLine("Init Program!");
-            Console.WriteLine($"Result: {result:0.00}");
+                    Console.WriteLine("Init Program!");
+                    Console.WriteLine($"Result: {result:0.00}");
+                }
+            }
+        }
+
+        static IWindsorContainer GetContainer()
+        {
+            var container = new WindsorContainer();
+            container.Register(Component.For<ICalculator>()
+                     .ImplementedBy<SumOperation>()
+                     .LifestyleSingleton());
+            container.Register(Component.For<Runner>()
+                     .LifestyleScoped());
+
+            return container;
         }
     }
 }
