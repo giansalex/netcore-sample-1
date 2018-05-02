@@ -4,6 +4,7 @@ using MainLibrary;
 using MainLibrary.Core;
 using System.Collections.Generic;
 using NFluent;
+using Shouldly;
 
 namespace MainTests
 {
@@ -29,6 +30,7 @@ namespace MainTests
             var total = runner.Total(numbers);
             Assert.Equal(13.5M, total);
             Check.That(total).IsStrictlyGreaterThan(0);
+            total.ShouldBeGreaterThan(0);
         }
     }
 }
