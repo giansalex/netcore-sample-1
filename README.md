@@ -3,3 +3,4 @@
 
 ## Packages 
 - [Castle Windsor](https://github.com/castleproject/Windsor)
+- [Miniprofiler](https://github.com/MiniProfiler/dotnet)

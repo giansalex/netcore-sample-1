@@ -7,6 +7,7 @@ using Castle.Windsor.Installer;
 using System.Reflection;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Lifestyle;
+using StackExchange.Profiling;
 
 namespace ConsoleApp
 {
@@ -21,6 +22,9 @@ namespace ConsoleApp
                 new Tuple<decimal, decimal>(6.4M, 3),
             };
 
+            var profiler = MiniProfiler.StartNew(nameof(ConsoleApp));
+            
+            using (profiler.Step(nameof(Main)))
             using (var container = GetContainer())
             {
                 using (container.BeginScope())
@@ -28,10 +32,12 @@ namespace ConsoleApp
                     var runner = container.Resolve<Runner>();
                     var result = runner.Total(numbers);
 
-                    Console.WriteLine("Init Program!");
                     Console.WriteLine($"Result: {result:0.00}");
                 }
             }
+
+            profiler.Stop();
+            Console.WriteLine(MiniProfiler.Current.RenderPlainText());
         }
 
         static IWindsorContainer GetContainer()
